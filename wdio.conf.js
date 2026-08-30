@@ -10,7 +10,7 @@ exports.config = {
     capabilities: [{
         platformName: 'Android',
         'appium:automationName': 'UiAutomator2',
-        'appium:deviceName': 'Android Device',
+        'appium:deviceName': 'Android Device', // Ganti dengan nama perangkat Android yang sesuai (karena hanya satu perangkat yang terhubung, gunakan nama generik)
         'appium:app': path.join(process.cwd(), 'app/app-release.apk'),
         'appium:appPackage': 'com.example.belajar_bareng',
         'appium:appActivity': 'com.example.belajar_bareng.MainActivity',
