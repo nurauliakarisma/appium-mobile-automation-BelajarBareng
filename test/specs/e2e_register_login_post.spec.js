@@ -20,7 +20,7 @@ describe('E2E Flow - Registrasi Akun Baru, Login, dan Buat Postingan', () => {
         console.log(`======================================================\n`);
     });
 
-    it('Langkah 1: Registrasi Akun Baru dengan Data Hasil Generate (Tanpa Angka)', async () => {
+    it('Langkah 1: Registrasi Akun Baru dengan Data Hasil Generate', async () => {
         // 1. Klik 'Belum punya akun? Register'
         await loginLocator.btnToRegister.waitForDisplayed({ timeout: 15000 });
         await loginLocator.btnToRegister.click();
