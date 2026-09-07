@@ -59,6 +59,16 @@ class ScrollUtil {
     }
 
     /**
+     * Melakukan scroll hingga mencapai bagian paling atas halaman
+     * @param {number} times - Berapa kali melakukan swipe ke atas (default 3 kali)
+     */
+    async scrollToTop(times = 3) {
+        for (let i = 0; i < times; i++) {
+            await this.scrollUp(0.25, 0.75, 500);
+        }
+    }
+
+    /**
      * Melakukan scroll sampai elemen target terlihat di layar
      * @param {WebdriverIO.Element} element - Elemen WebdriverIO yang dicari
      * @param {number} maxScrolls - Maksimal percobaan scroll (default 5)

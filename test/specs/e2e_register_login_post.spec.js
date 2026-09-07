@@ -25,28 +25,42 @@ describe('E2E Flow - Registrasi Akun Baru, Login, dan Buat Postingan', () => {
         await loginLocator.btnToRegister.waitForDisplayed({ timeout: 15000 });
         await loginLocator.btnToRegister.click();
 
-        // 2. Isi form registrasi dengan data yang baru di-generate
+        // 2. Tunggu form registrasi tampil
         await registerLocator.headerTitle.waitForDisplayed({ timeout: 15000 });
+
+        // 3. Masukkan Username
+        await registerLocator.inputUsername.waitForDisplayed({ timeout: 10000 });
+        await registerLocator.inputUsername.click();
         await registerLocator.inputUsername.setValue(currentUser.username);
+
+        // 4. Masukkan Email
+        await registerLocator.inputEmail.waitForDisplayed({ timeout: 10000 });
+        await registerLocator.inputEmail.click();
         await registerLocator.inputEmail.setValue(currentUser.email);
+
+        // 5. Masukkan Password
+        await registerLocator.inputPassword.waitForDisplayed({ timeout: 10000 });
+        await registerLocator.inputPassword.click();
         await registerLocator.inputPassword.setValue(currentUser.password);
 
-        // 3. Sembunyikan keyboard jika aktif
+        // 6. Sembunyikan keyboard jika aktif
         if (await driver.isKeyboardShown()) {
             await driver.hideKeyboard();
         }
 
-        // 4. Scroll ke bawah sampai tombol Register terlihat penuh
+        // 7. Scroll ke bawah sampai tombol Register terlihat penuh
         await scrollUtil.scrollDown(0.7, 0.3, 500);
 
-        // 5. Klik tombol Register
+        // 8. Klik tombol Register
         await registerLocator.btnRegister.waitForDisplayed({ timeout: 10000 });
         await registerLocator.btnRegister.click();
 
-        // 6. Assertion: Memastikan sistem kembali ke halaman Login setelah berhasil registrasi
+        // 9. Assertion: Memastikan sistem kembali ke halaman Login setelah berhasil registrasi
         await loginLocator.inputEmail.waitForDisplayed({ timeout: 15000 });
         const isLoginScreenDisplayed = await loginLocator.inputEmail.isDisplayed();
         expect(isLoginScreenDisplayed).toBe(true);
+
+        await browser.pause(2000);
     });
 
     it('Langkah 2: Login Menggunakan Akun yang Baru Saja Didaftarkan', async () => {
@@ -76,38 +90,38 @@ describe('E2E Flow - Registrasi Akun Baru, Login, dan Buat Postingan', () => {
         const isHeaderDisplayed = await homeLocator.headerTitle.isDisplayed();
         expect(isHeaderDisplayed).toBe(true);
 
+        await homeLocator.inputPost.waitForDisplayed({ timeout: 15000 });
         const isInputPostDisplayed = await homeLocator.inputPost.isDisplayed();
         expect(isInputPostDisplayed).toBe(true);
 
-        // 6. Scroll ke bawah pada halaman beranda
-        await scrollUtil.scrollToBottom(2);
+        await browser.pause(2000);
     });
 
     it('Langkah 3: Membuat Postingan Baru Menggunakan Akun Tersebut', async () => {
-        // 1. Scroll kembali ke atas untuk mengisi kolom postingan
-        await scrollUtil.scrollUp(0.3, 0.7, 500);
-
-        // 2. Masukkan teks konten postingan
+        // 1. Masukkan teks konten postingan
         await homeLocator.inputPost.waitForDisplayed({ timeout: 15000 });
         await homeLocator.inputPost.click();
         await homeLocator.inputPost.setValue(newPost.content);
 
-        // 3. Sembunyikan keyboard
+        // 2. Sembunyikan keyboard
         if (await driver.isKeyboardShown()) {
             await driver.hideKeyboard();
         }
 
-        // 4. Klik tombol Posting
+        // 3. Klik tombol Posting
         await homeLocator.btnPosting.waitForDisplayed({ timeout: 10000 });
         await homeLocator.btnPosting.click();
 
-        // 5. Jeda dan Scroll ke bawah untuk melihat postingan di feed
+        // 4. Jeda dan Scroll ke bawah untuk melihat postingan di feed
         await browser.pause(2000);
         await scrollUtil.scrollDown(0.7, 0.3, 600);
 
-        // 6. Assertion: Memastikan feed postingan ditampilkan
+        // 5. Assertion: Memastikan feed postingan ditampilkan
         const isFeedDisplayed = await homeLocator.feedList.isDisplayed();
         expect(isFeedDisplayed).toBe(true);
+
+        // 6. Scroll sampai bawah untuk melihat seluruh feed postingan
+        await scrollUtil.scrollToBottom(2);
 
         await browser.pause(2000);
     });

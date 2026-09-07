@@ -5,7 +5,6 @@ const scrollUtil = require('../utils/scroll.util');
 
 describe('Skenario Registrasi - BelajarBareng', () => {
     it('Harus berhasil mendaftarkan akun baru dengan nama unik (tanpa angka) dan scroll sampai tombol Register', async () => {
-        // Generate data registrasi baru murni huruf tanpa angka dan simpan untuk dipakai login
         const newUser = getDynamicRegisterUser('melati');
         saveSessionUser(newUser);
 
@@ -20,25 +19,37 @@ describe('Skenario Registrasi - BelajarBareng', () => {
         await loginLocator.btnToRegister.waitForDisplayed({ timeout: 15000 });
         await loginLocator.btnToRegister.click();
 
-        // 2. Isi form registrasi
+        // 2. Tunggu form registrasi tampil
         await registerLocator.headerTitle.waitForDisplayed({ timeout: 15000 });
+
+        // 3. Masukkan Username
+        await registerLocator.inputUsername.waitForDisplayed({ timeout: 10000 });
+        await registerLocator.inputUsername.click();
         await registerLocator.inputUsername.setValue(newUser.username);
+
+        // 4. Masukkan Email
+        await registerLocator.inputEmail.waitForDisplayed({ timeout: 10000 });
+        await registerLocator.inputEmail.click();
         await registerLocator.inputEmail.setValue(newUser.email);
+
+        // 5. Masukkan Password
+        await registerLocator.inputPassword.waitForDisplayed({ timeout: 10000 });
+        await registerLocator.inputPassword.click();
         await registerLocator.inputPassword.setValue(newUser.password);
 
-        // 3. Sembunyikan keyboard jika aktif
+        // 6. Sembunyikan keyboard jika aktif
         if (await driver.isKeyboardShown()) {
             await driver.hideKeyboard();
         }
 
-        // 4. Scroll ke bawah sampai tombol Register terlihat
+        // 7. Scroll ke bawah sampai tombol Register terlihat
         await scrollUtil.scrollDown(0.7, 0.3, 500);
 
-        // 5. Klik tombol Register
+        // 8. Klik tombol Register
         await registerLocator.btnRegister.waitForDisplayed({ timeout: 10000 });
         await registerLocator.btnRegister.click();
 
-        // 6. Assertion: Memastikan kembali ke halaman Login
+        // 9. Assertion: Memastikan kembali ke halaman Login
         await loginLocator.inputEmail.waitForDisplayed({ timeout: 15000 });
         const isLoginScreenDisplayed = await loginLocator.inputEmail.isDisplayed();
         expect(isLoginScreenDisplayed).toBe(true);

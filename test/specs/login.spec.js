@@ -34,12 +34,12 @@ describe('Skenario Login & Assertion - BelajarBareng', () => {
         expect(isHeaderDisplayed).toBe(true);
 
         // Assert B: Memastikan Kolom Input Postingan tampil
-        await homeLocator.inputPost.waitForDisplayed({ timeout: 10000 });
+        await homeLocator.inputPost.waitForDisplayed({ timeout: 15000 });
         const isInputPostDisplayed = await homeLocator.inputPost.isDisplayed();
         expect(isInputPostDisplayed).toBe(true);
 
         // 6. SCROLL SAMPAI BAWAH (Melihat feed postingan sampai akhir)
-        await scrollUtil.scrollToBottom(3);
+        await scrollUtil.scrollToBottom(2);
 
         await browser.pause(2000);
     });
