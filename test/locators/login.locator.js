@@ -27,6 +27,11 @@ class LoginLocator {
     get headerLogo() {
         return $('~Belajar Bareng');
     }
+
+    // Pesan error / Toast / Notifikasi jika login gagal
+    get toastErrorMessage() {
+        return $('//android.view.View[contains(@content-desc, "salah") or contains(@content-desc, "Gagal") or contains(@content-desc, "tidak") or contains(@content-desc, "Error")]');
+    }
 }
 
 module.exports = new LoginLocator();

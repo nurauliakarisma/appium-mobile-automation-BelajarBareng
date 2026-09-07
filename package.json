@@ -5,9 +5,12 @@
   "scripts": {
     "test:mobile": "wdio run ./wdio.conf.js",
     "test:e2e": "wdio run ./wdio.conf.js --spec ./test/specs/e2e_register_login_post.spec.js",
-    "test:register": "wdio run ./wdio.conf.js --spec ./test/specs/register.spec.js",
-    "test:login": "wdio run ./wdio.conf.js --spec ./test/specs/login.spec.js",
-    "test:post": "wdio run ./wdio.conf.js --spec ./test/specs/post.spec.js",
+    "test:positive": "wdio run ./wdio.conf.js --spec ./test/specs/positive/**/*.js",
+    "test:negative": "wdio run ./wdio.conf.js --spec ./test/specs/negative/**/*.js",
+    "test:login:manual": "wdio run ./wdio.conf.js --spec ./test/specs/positive/login_positive.spec.js",
+    "test:login:negative": "wdio run ./wdio.conf.js --spec ./test/specs/negative/login_negative.spec.js",
+    "test:register:positive": "wdio run ./wdio.conf.js --spec ./test/specs/positive/register_positive.spec.js",
+    "test:register:negative": "wdio run ./wdio.conf.js --spec ./test/specs/negative/register_negative.spec.js",
     "allure:generate": "allure generate allure-results --clean -o allure-report",
     "allure:open": "allure open allure-report",
     "report": "npm run allure:generate && npm run allure:open"
