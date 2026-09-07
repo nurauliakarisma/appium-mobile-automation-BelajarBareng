@@ -1,10 +1,19 @@
 const loginLocator = require('../locators/login.locator');
 const registerLocator = require('../locators/register.locator');
-const { registerUser } = require('../data/auth.data');
+const { getDynamicRegisterUser } = require('../data/auth.data');
 const scrollUtil = require('../utils/scroll.util');
 
 describe('Skenario Registrasi - BelajarBareng', () => {
-    it('Harus berhasil mendaftarkan akun baru dengan data valid dan scroll sampai tombol Register', async () => {
+    it('Harus berhasil mendaftarkan akun baru dengan nama unik (tanpa angka) dan scroll sampai tombol Register', async () => {
+        // Generate data registrasi baru yang unik dan murni huruf tanpa angka (contoh: melatibchdfabc)
+        const newUser = getDynamicRegisterUser('melati');
+        console.log(`\n========================================`);
+        console.log(`[INFO] Mendaftarkan User Baru:`);
+        console.log(`- Username : ${newUser.username}`);
+        console.log(`- Email    : ${newUser.email}`);
+        console.log(`- Password : ${newUser.password}`);
+        console.log(`========================================\n`);
+
         // 1. Tunggu halaman Login muncul & klik 'Belum punya akun? Register'
         await loginLocator.btnToRegister.waitForDisplayed({ timeout: 15000 });
         await loginLocator.btnToRegister.click();
@@ -12,20 +21,20 @@ describe('Skenario Registrasi - BelajarBareng', () => {
         // 2. Tunggu form registrasi tampil
         await registerLocator.headerTitle.waitForDisplayed({ timeout: 15000 });
 
-        // 3. Masukkan Username (melati)
+        // 3. Masukkan Username unik murni huruf
         await registerLocator.inputUsername.waitForDisplayed({ timeout: 10000 });
         await registerLocator.inputUsername.click();
-        await registerLocator.inputUsername.setValue(registerUser.username);
+        await registerLocator.inputUsername.setValue(newUser.username);
 
-        // 4. Masukkan Email (melati@gmail.com)
+        // 4. Masukkan Email unik
         await registerLocator.inputEmail.waitForDisplayed({ timeout: 10000 });
         await registerLocator.inputEmail.click();
-        await registerLocator.inputEmail.setValue(registerUser.email);
+        await registerLocator.inputEmail.setValue(newUser.email);
 
         // 5. Masukkan Password (@Melati1)
         await registerLocator.inputPassword.waitForDisplayed({ timeout: 10000 });
         await registerLocator.inputPassword.click();
-        await registerLocator.inputPassword.setValue(registerUser.password);
+        await registerLocator.inputPassword.setValue(newUser.password);
 
         // 6. Sembunyikan keyboard jika aktif
         if (await driver.isKeyboardShown()) {
@@ -39,7 +48,7 @@ describe('Skenario Registrasi - BelajarBareng', () => {
         await registerLocator.btnRegister.waitForDisplayed({ timeout: 10000 });
         await registerLocator.btnRegister.click();
 
-        // 9. Assertion / Verifikasi: Setelah registrasi, sistem kembali ke halaman Login
+        // 9. Assertion / Verifikasi: Setelah registrasi berhasil, sistem kembali ke halaman Login
         await loginLocator.inputEmail.waitForDisplayed({ timeout: 15000 });
         const isLoginScreenDisplayed = await loginLocator.inputEmail.isDisplayed();
         expect(isLoginScreenDisplayed).toBe(true);

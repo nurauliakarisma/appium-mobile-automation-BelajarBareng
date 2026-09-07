@@ -15,16 +15,17 @@ Appium_Mobile_Automation_BelajarBareng/
 │   └── home_dump.xml              # Hierarki UI (XML Dump) layar Beranda / Postingan
 ├── test/
 │   ├── data/                      # 📁 Direktori Data Pengujian (Test Data)
-│   │   ├── auth.data.js           # Data registrasi (melati) dan kredensial login
+│   │   ├── auth.data.js           # Generator data registrasi dinamis & kredensial login
 │   │   └── post.data.js           # Data konten teks postingan
 │   ├── locators/                  # 📁 Direktori Selector Elemen (Locators)
 │   │   ├── login.locator.js       # Selector elemen form login
 │   │   ├── register.locator.js    # Selector elemen form registrasi
 │   │   └── home.locator.js        # Selector elemen beranda & form posting
 │   ├── utils/                     # 📁 Direktori Helper / Utility
+│   │   ├── generator.util.js      # Generator data unik murni huruf (tanpa angka)
 │   │   └── scroll.util.js         # Fungsi gestur scroll (scroll down, scroll to bottom)
 │   └── specs/                     # 📁 Direktori Test Case / Skenario Pengujian
-│       ├── register.spec.js       # Skenario Registrasi Akun Baru (Melati) + Scroll
+│       ├── register.spec.js       # Skenario Registrasi Otomatis (Unik Tanpa Angka) + Scroll
 │       ├── login.spec.js          # Skenario Login dengan Valid User + Assertion
 │       └── post.spec.js           # Skenario Buat Postingan Baru + Scroll Feed
 ├── .gitignore                     # Konfigurasi file yang diabaikan Git
@@ -62,20 +63,17 @@ Appium_Mobile_Automation_BelajarBareng/
 
 ---
 
-## 📋 Detail Skenario & Arsitektur
+## 📋 Detail Skenario & Fitur Unggulan
 
-### 1. Skenario Registrasi (`test/specs/register.spec.js`)
-* **Tujuan**: Mendaftarkan akun baru dengan data:
-  - **Username**: `melati`
-  - **Email**: `melati@gmail.com`
-  - **Password**: `@Melati1`
+### 1. Skenario Registrasi Dinamis (`test/specs/register.spec.js`)
+* **Auto-Generated Username (Tanpa Angka)**: Menggunakan `generator.util.js` yang secara otomatis menghasilkan nama akun acak murni huruf pada setiap eksekusi pengujian (contoh: `melatibchdfabc`, `melatiafgehxyz`), sehingga pengujian registrasi tidak akan pernah gagal karena duplikasi nama.
 * **Alur**:
   1. Klik tombol *"Belum punya akun? Register"* di layar login.
-  2. Mengisi form username, email, dan password dari `test/data/auth.data.js`.
+  2. Mengisi form username acak, email unik, dan password.
   3. Menyembunyikan virtual keyboard (`driver.hideKeyboard()`).
   4. Melakukan gestur **scroll down** menggunakan `scrollUtil.scrollDown()` agar form dan tombol Register terlihat penuh.
   5. Menekan tombol Register.
-  6. **Assertion**: Memverifikasi sistem kembali ke halaman login.
+  6. **Assertion**: Memverifikasi sistem kembali ke halaman login setelah registrasi sukses.
 
 ### 2. Skenario Login & Assertion (`test/specs/login.spec.js`)
 * **Tujuan**: Melakukan login dan memvalidasi keberhasilan login.
@@ -97,12 +95,19 @@ Appium_Mobile_Automation_BelajarBareng/
 
 ---
 
-## 📜 Helper Utility Gestur Scroll (`test/utils/scroll.util.js`)
+## 📜 Helper Utilities
 
-Gestur scroll dibuat menggunakan **W3C Pointer Actions** sehingga stabil dan kompatibel di semua versi Android:
-
+### A. Generator Unik Tanpa Angka (`test/utils/generator.util.js`)
+Mengubah timestamp milidetik dan kombinasi alfabet menjadi huruf (A-Z) sehingga setiap registrasi selalu menghasilkan nama yang berbeda dan bebas dari angka:
 ```javascript
-// Contoh pemanggilan scroll helper di test case
+const generatorUtil = require('../utils/generator.util');
+const user = generatorUtil.generateRegisterUser('melati');
+// Output -> { username: 'melatibchdfabc', email: 'melatibchdfabc@gmail.com', password: '@Melati1' }
+```
+
+### B. Gestur Scroll (`test/utils/scroll.util.js`)
+Gestur scroll dibuat menggunakan **W3C Pointer Actions** yang stabil dan kompatibel di semua versi Android:
+```javascript
 const scrollUtil = require('../utils/scroll.util');
 
 // Scroll ke bawah sekali
@@ -110,9 +115,6 @@ await scrollUtil.scrollDown(0.7, 0.3, 500);
 
 // Scroll berulang sampai ke bagian paling bawah
 await scrollUtil.scrollToBottom(3);
-
-// Scroll sampai elemen tertentu terlihat
-await scrollUtil.scrollToElement(element);
 ```
 
 ---

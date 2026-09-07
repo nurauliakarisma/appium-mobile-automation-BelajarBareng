@@ -1,18 +1,14 @@
+const generatorUtil = require('../utils/generator.util');
+
 module.exports = {
-    // Data untuk skenario Registrasi
-    registerUser: {
-        username: 'melati',
-        email: 'melati@gmail.com',
-        password: '@Melati1'
+    // Fungsi untuk membuat data registrasi dinamis yang selalu berbeda di setiap test (tanpa angka di username)
+    getDynamicRegisterUser: (prefix = 'melati') => {
+        return generatorUtil.generateRegisterUser(prefix);
     },
-    // Data untuk skenario Login user yang sudah terdaftar sebelumnya
+
+    // Data statis untuk skenario Login user yang sudah terdaftar
     validUser: {
         email: 'aulia1@gmail.com',
         password: '@Aulia1'
-    },
-    // Data untuk skenario Login user baru setelah registrasi
-    newRegisteredUser: {
-        email: 'melati@gmail.com',
-        password: '@Melati1'
     }
 };
