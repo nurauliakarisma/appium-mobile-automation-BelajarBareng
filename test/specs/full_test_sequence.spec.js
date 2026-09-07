@@ -11,15 +11,21 @@ const {
 } = require('../data/auth.data');
 const { newPost } = require('../data/post.data');
 const scrollUtil = require('../utils/scroll.util');
+const appUtil = require('../utils/app.util');
 
-describe('Full Sequence Testing: Login Manual ➡️ Registrasi Generate ➡️ Positif Flow ➡️ Negatif Flow', () => {
+describe('Master Sequence: 1. Login Manual ➡️ 2. Regis Generate ➡️ 3. Positif Flow ➡️ 4. Negatif Flow', () => {
     let generatedUser;
 
+    before(async () => {
+        // Pastikan aplikasi terbuka bersih di halaman Login
+        await appUtil.resetToLoginScreen();
+    });
+
     // =========================================================================
-    // TAHAP 1: LOGIN MANUAL DULU (User Valid Tetap)
+    // TAHAP 1: LOGIN MANUAL (User Valid aulia1@gmail.com)
     // =========================================================================
     describe('1. [TAHAP 1] Login Manual Menggunakan Kredensial Valid Tetap', () => {
-        it('Harus berhasil login dengan user manual aulia1@gmail.com', async () => {
+        it('Harus berhasil login dengan user manual aulia1@gmail.com dan memvalidasi beranda', async () => {
             console.log('\n🔵 [TAHAP 1] Menjalankan Login Manual (aulia1@gmail.com)...');
 
             await loginLocator.inputEmail.waitForDisplayed({ timeout: 15000 });
@@ -53,9 +59,8 @@ describe('Full Sequence Testing: Login Manual ➡️ Registrasi Generate ➡️ 
     // =========================================================================
     describe('2. [TAHAP 2] Registrasi Akun Baru dengan Auto-Generate (Tanpa Angka)', () => {
         it('Harus berhasil generate nama unik dan mendaftarkan akun baru', async () => {
-            // Restart / buka kembali ke layar login untuk memulai registrasi baru
-            await driver.terminateApp('com.example.belajar_bareng');
-            await driver.activateApp('com.example.belajar_bareng');
+            // Reset sesi agar aplikasi kembali ke halaman Login awal
+            await appUtil.resetToLoginScreen();
 
             // Generate user unik 100% huruf
             generatedUser = getDynamicRegisterUser('melati');
@@ -71,8 +76,20 @@ describe('Full Sequence Testing: Login Manual ➡️ Registrasi Generate ➡️ 
             await loginLocator.btnToRegister.click();
 
             await registerLocator.headerTitle.waitForDisplayed({ timeout: 15000 });
+
+            // Masukkan Username
+            await registerLocator.inputUsername.waitForDisplayed({ timeout: 10000 });
+            await registerLocator.inputUsername.click();
             await registerLocator.inputUsername.setValue(generatedUser.username);
+
+            // Masukkan Email
+            await registerLocator.inputEmail.waitForDisplayed({ timeout: 10000 });
+            await registerLocator.inputEmail.click();
             await registerLocator.inputEmail.setValue(generatedUser.email);
+
+            // Masukkan Password
+            await registerLocator.inputPassword.waitForDisplayed({ timeout: 10000 });
+            await registerLocator.inputPassword.click();
             await registerLocator.inputPassword.setValue(generatedUser.password);
 
             if (await driver.isKeyboardShown()) {
@@ -84,7 +101,7 @@ describe('Full Sequence Testing: Login Manual ➡️ Registrasi Generate ➡️ 
             await registerLocator.btnRegister.waitForDisplayed({ timeout: 10000 });
             await registerLocator.btnRegister.click();
 
-            // Assertion: Kembali ke halaman login
+            // Assertion: Sistem kembali ke halaman login setelah registrasi
             await loginLocator.inputEmail.waitForDisplayed({ timeout: 15000 });
             expect(await loginLocator.inputEmail.isDisplayed()).toBe(true);
             await browser.pause(2000);
@@ -96,7 +113,7 @@ describe('Full Sequence Testing: Login Manual ➡️ Registrasi Generate ➡️ 
     // =========================================================================
     describe('3. [TAHAP 3] Skenario Positif (Login Akun Baru & Buat Postingan)', () => {
         it('Harus berhasil login menggunakan akun yang baru saja di-generate', async () => {
-            console.log('\n🟢 [TAHAP 3] Login dengan User Baru...');
+            console.log('\n🟢 [TAHAP 3] Login dengan Akun Baru Hasil Registrasi...');
             const sessionUser = getSavedSessionUser();
 
             await loginLocator.inputEmail.waitForDisplayed({ timeout: 15000 });
@@ -114,8 +131,12 @@ describe('Full Sequence Testing: Login Manual ➡️ Registrasi Generate ➡️ 
             await loginLocator.btnLogin.waitForDisplayed({ timeout: 10000 });
             await loginLocator.btnLogin.click();
 
+            // Assertion: Header Beranda & Kolom Postingan tampil
             await homeLocator.headerTitle.waitForDisplayed({ timeout: 15000 });
             expect(await homeLocator.headerTitle.isDisplayed()).toBe(true);
+
+            await homeLocator.inputPost.waitForDisplayed({ timeout: 15000 });
+            expect(await homeLocator.inputPost.isDisplayed()).toBe(true);
         });
 
         it('Harus berhasil membuat postingan baru dan memverifikasi feed', async () => {
@@ -137,6 +158,9 @@ describe('Full Sequence Testing: Login Manual ➡️ Registrasi Generate ➡️ 
 
             // Assertion feed muncul
             expect(await homeLocator.feedList.isDisplayed()).toBe(true);
+
+            // Scroll sampai bawah untuk melihat seluruh feed
+            await scrollUtil.scrollToBottom(2);
             await browser.pause(2000);
         });
     });
@@ -148,9 +172,8 @@ describe('Full Sequence Testing: Login Manual ➡️ Registrasi Generate ➡️ 
         it('Negatif 1: Gagal login ketika memasukkan password salah', async () => {
             console.log('\n🔴 [TAHAP 4] Uji Negatif: Login Password Salah...');
 
-            // Restart app ke layar login
-            await driver.terminateApp('com.example.belajar_bareng');
-            await driver.activateApp('com.example.belajar_bareng');
+            // Reset kembali ke layar login
+            await appUtil.resetToLoginScreen();
 
             await loginLocator.inputEmail.waitForDisplayed({ timeout: 15000 });
             await loginLocator.inputEmail.click();
@@ -180,8 +203,17 @@ describe('Full Sequence Testing: Login Manual ➡️ Registrasi Generate ➡️ 
             await loginLocator.btnToRegister.click();
 
             await registerLocator.headerTitle.waitForDisplayed({ timeout: 15000 });
+
+            await registerLocator.inputUsername.waitForDisplayed({ timeout: 10000 });
+            await registerLocator.inputUsername.click();
             await registerLocator.inputUsername.setValue(negativeRegister.invalidEmail.username);
+
+            await registerLocator.inputEmail.waitForDisplayed({ timeout: 10000 });
+            await registerLocator.inputEmail.click();
             await registerLocator.inputEmail.setValue(negativeRegister.invalidEmail.email);
+
+            await registerLocator.inputPassword.waitForDisplayed({ timeout: 10000 });
+            await registerLocator.inputPassword.click();
             await registerLocator.inputPassword.setValue(negativeRegister.invalidEmail.password);
 
             if (await driver.isKeyboardShown()) {
