@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test:mobile": "wdio run ./wdio.conf.js",
+    "test:sequence": "wdio run ./wdio.conf.js --spec ./test/specs/full_test_sequence.spec.js",
     "test:e2e": "wdio run ./wdio.conf.js --spec ./test/specs/e2e_register_login_post.spec.js",
     "test:positive": "wdio run ./wdio.conf.js --spec ./test/specs/positive/**/*.js",
     "test:negative": "wdio run ./wdio.conf.js --spec ./test/specs/negative/**/*.js",

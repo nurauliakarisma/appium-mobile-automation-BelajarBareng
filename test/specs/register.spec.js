@@ -4,7 +4,7 @@ const { getDynamicRegisterUser, saveSessionUser } = require('../data/auth.data')
 const scrollUtil = require('../utils/scroll.util');
 
 describe('Skenario Registrasi - BelajarBareng', () => {
-    it('Harus berhasil mendaftarkan akun baru dengan nama unik (tanpa angka) dan scroll sampai tombol Register', async () => {
+    it('Harus berhasil mendaftarkan akun baru dengan nama unik dan scroll sampai tombol Register', async () => {
         const newUser = getDynamicRegisterUser('melati');
         saveSessionUser(newUser);
 

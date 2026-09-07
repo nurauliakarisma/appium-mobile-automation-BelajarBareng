@@ -9,7 +9,7 @@ describe('E2E Flow - Registrasi Akun Baru, Login, dan Buat Postingan', () => {
     let currentUser;
 
     before(() => {
-        // Generate data akun baru murni huruf tanpa angka dan simpan ke file session
+        // Generate data akun baru murni huruf dan simpan ke file session
         const generatedUser = getDynamicRegisterUser('melati');
         currentUser = saveSessionUser(generatedUser);
         console.log(`\n======================================================`);

@@ -11,10 +11,11 @@ Proyek ini menerapkan arsitektur modular **Page Object Pattern (Locators, Test D
 - [📂 Struktur Direktori Proyek](#-struktur-direktori-proyek)
 - [🛠️ Prasyarat (Prerequisites)](#️-prasyarat-prerequisites)
 - [🚀 Instalasi & Setup](#-instalasi--setup)
-- [🧪 Pembagian Skenario Uji (Test Cases)](#-pembagian-skenario-uji-test-cases)
-  - [🟢 1. Skenario Positif (Positive Cases)](#-1-skenario-positif-positive-cases)
-  - [🔴 2. Skenario Negatif (Negative Cases)](#-2-skenario-negatif-negative-cases)
-  - [🌟 3. Skenario End-to-End (E2E Flow)](#-3-skenario-end-to-end-e2e-flow)
+- [🔄 Alur Urutan Pengujian (Sequential Flow)](#-alur-urutan-pengujian-sequential-flow)
+  - [1. Tahap 1: Login Manual User Valid](#1-tahap-1-login-manual-user-valid)
+  - [2. Tahap 2: Registrasi dengan Auto-Generate (Tanpa Angka)](#2-tahap-2-registrasi-dengan-auto-generate-tanpa-angka)
+  - [3. Tahap 3: Skenario Positif (Login Akun Baru & Posting)](#3-tahap-3-skenario-positif-login-akun-baru--posting)
+  - [4. Tahap 4: Skenario Negatif (Validasi Error & Field Kosong)](#4-tahap-4-skenario-negatif-validasi-error--field-kosong)
 - [▶️ Perintah Menjalankan Pengujian](#️-perintah-menjalankan-pengujian)
 - [📊 Menghasilkan & Membuka Allure Report](#-menghasilkan--membuka-allure-report)
 - [🔍 Panduan Appium Inspector](#-panduan-appium-inspector)
@@ -43,6 +44,7 @@ Appium_Mobile_Automation_BelajarBareng/
 │   │   ├── generator.util.js      # Generator akun unik 100% huruf (tanpa angka)
 │   │   └── scroll.util.js         # Gestur scroll W3C Actions
 │   └── specs/                     # 📁 Skenario Pengujian (Specs)
+│       ├── full_test_sequence.spec.js # 🌟 Master Suite: Manual -> Regis -> Positif -> Negatif
 │       ├── positive/              # 🟢 Folder Positive Test Cases
 │       │   ├── register_positive.spec.js  # Registrasi dengan data valid
 │       │   ├── login_positive.spec.js     # Login Manual (aulia1@gmail.com) & Dinamis
@@ -50,7 +52,7 @@ Appium_Mobile_Automation_BelajarBareng/
 │       ├── negative/              # 🔴 Folder Negative Test Cases
 │       │   ├── register_negative.spec.js  # Registrasi email invalid & field kosong
 │       │   └── login_negative.spec.js     # Login password salah, unreg email, & field kosong
-│       └── e2e_register_login_post.spec.js # 🌟 Skenario E2E (Registrasi -> Login -> Posting)
+│       └── e2e_register_login_post.spec.js # Skenario E2E (Registrasi -> Login -> Posting)
 ├── .gitignore                     # Konfigurasi file yang dikecualikan dari Git
 ├── package.json                   # Dependencies & npm scripts
 ├── README.md                      # Dokumentasi lengkap proyek
@@ -85,42 +87,28 @@ npm install
 
 ---
 
-## 🧪 Pembagian Skenario Uji (Test Cases)
+## 🔄 Alur Urutan Pengujian (Sequential Flow)
 
-### 🟢 1. Skenario Positif (Positive Cases)
+File pengujian urutan lengkap berada di: [`test/specs/full_test_sequence.spec.js`](file:///c:/Users/qcris/OneDrive/Documents/Digital%20Skola/Appium_Mobile_Automation_BelajarBareng/test/specs/full_test_sequence.spec.js).
 
-* **Registrasi Positif (`test/specs/positive/register_positive.spec.js`)**:
-  - Mendaftarkan user baru dengan **nama unik 100% murni huruf tanpa angka** (contoh: `melatibchdfabc`).
-  - Mengisi form, scroll ke tombol Register, submit, dan memastikan sistem kembali ke halaman Login.
-* **Login Positif (`test/specs/positive/login_positive.spec.js`)**:
-  - **Kasus 1 (Login Manual)**: Menggunakan user valid tetap `email: aulia1@gmail.com` dan `password: @Aulia1`.
-  - **Kasus 2 (Login Dinamis)**: Menggunakan akun yang baru saja di-generate dari sesi registrasi.
-  - **Assertion**: Memverifikasi Header Beranda `"Belajar Bareng"` dan Form Postingan berhasil dimuat.
-* **Posting Positif (`test/specs/positive/post_positive.spec.js`)**:
-  - Login dengan user valid $\to$ Mengisi teks postingan $\to$ Submit $\to$ Scroll ke bawah dan memastikan postingan tampil di feed.
+### 1. Tahap 1: Login Manual User Valid
+* Menggunakan data kredensial valid tetap:
+  - **Email**: `aulia1@gmail.com`
+  - **Password**: `@Aulia1`
+* **Alur**: Memasukkan email & password $\to$ Klik Login $\to$ **Assert**: Berhasil masuk ke beranda & scroll feed.
 
----
+### 2. Tahap 2: Registrasi dengan Auto-Generate (Tanpa Angka)
+* Menggunakan `generator.util.js` untuk membuat nama unik murni huruf (contoh: `melatibchdfabc`).
+* Data otomatis disimpan ke file sesi.
+* **Alur**: Masuk form register $\to$ isi username, email, password $\to$ scroll $\to$ submit $\to$ **Assert**: Kembali ke halaman login.
 
-### 🔴 2. Skenario Negatif (Negative Cases)
+### 3. Tahap 3: Skenario Positif (Login Akun Baru & Posting)
+* **Login Akun Baru**: Membaca user yang baru saja didaftarkan pada Tahap 2 $\to$ submit login $\to$ **Assert**: Masuk ke beranda.
+* **Buat Postingan**: Mengisi teks postingan $\to$ klik Posting $\to$ scroll down $\to$ **Assert**: Postingan berhasil tampil di feed.
 
-* **Login Negatif (`test/specs/negative/login_negative.spec.js`)**:
-  - **Kasus 1**: Gagal login saat memasukkan **Password Salah** (`SalahPassword123!`).
-  - **Kasus 2**: Gagal login dengan **Email yang Belum Terdaftar** (`emailtidakada_xyz999@gmail.com`).
-  - **Kasus 3**: Gagal login saat **Semua Field Dikosongkan**.
-  - **Assertion**: Memverifikasi sistem menolak login dan tetap berada di halaman login (tidak masuk ke beranda).
-* **Registrasi Negatif (`test/specs/negative/register_negative.spec.js`)**:
-  - **Kasus 1**: Gagal registrasi saat memasukkan **Format Email Tidak Valid** (tanpa domain / `@`).
-  - **Kasus 2**: Gagal registrasi saat **Semua Field Dikosongkan**.
-  - **Assertion**: Memverifikasi form registrasi menolak proses pendaftaran dan tetap berada di layar registrasi.
-
----
-
-### 🌟 3. Skenario End-to-End (E2E Flow)
-
-File: [`test/specs/e2e_register_login_post.spec.js`](file:///c:/Users/qcris/OneDrive/Documents/Digital%20Skola/Appium_Mobile_Automation_BelajarBareng/test/specs/e2e_register_login_post.spec.js)
-1. **Langkah 1**: Registrasi akun baru (Auto-generated unique name tanpa angka $\to$ disimpan otomatis ke sesi).
-2. **Langkah 2**: Login menggunakan akun yang baru saja didaftarkan tersebut $\to$ validasi assertion beranda.
-3. **Langkah 3**: Buat postingan dengan akun tersebut $\to$ submit $\to$ scroll feed & validasi.
+### 4. Tahap 4: Skenario Negatif (Validasi Error & Field Kosong)
+* **Negatif Login**: Uji coba login menggunakan **Password Salah** $\to$ **Assert**: Sistem menolak login dan tetap berada di halaman login.
+* **Negatif Registrasi**: Uji coba registrasi dengan **Format Email Tidak Valid** $\to$ **Assert**: Sistem menahan pengguna tetap di layar registrasi.
 
 ---
 
@@ -128,14 +116,12 @@ File: [`test/specs/e2e_register_login_post.spec.js`](file:///c:/Users/qcris/OneD
 
 | Perintah | Deskripsi |
 | :--- | :--- |
-| `npm run test:e2e` | **🌟 Menjalankan Alur Lengkap E2E (Registrasi $\to$ Login $\to$ Posting)** |
-| `npm run test:positive` | **🟢 Menjalankan Semua Skenario Positif (Register, Login Manual, Posting)** |
-| `npm run test:negative` | **🔴 Menjalankan Semua Skenario Negatif (Login Invalid, Register Invalid)** |
-| `npm run test:login:manual` | Menjalankan pengujian Login Manual (user valid `aulia1@gmail.com`) |
-| `npm run test:login:negative` | Menjalankan pengujian Login Negatif (password salah, unreg email) |
-| `npm run test:register:positive` | Menjalankan pengujian Registrasi Positif (user baru unik) |
-| `npm run test:register:negative` | Menjalankan pengujian Registrasi Negatif (email invalid, field kosong) |
-| `npm run test:mobile` | Menjalankan seluruh test suite |
+| `npm run test:sequence` | **🌟 MENJALANKAN URUTAN LENGKAP: Manual Login ➡️ Regis Generate ➡️ Positif Flow ➡️ Negatif Flow** |
+| `npm run test:positive` | 🟢 Menjalankan Semua Skenario Positif (Register, Login Manual, Posting) |
+| `npm run test:negative` | 🔴 Menjalankan Semua Skenario Negatif (Login & Register Invalid) |
+| `npm run test:login:manual` | Menjalankan khusus **Login Manual** (`aulia1@gmail.com`) |
+| `npm run test:e2e` | Menjalankan skenario E2E (*Registrasi $\to$ Login $\to$ Posting*) |
+| `npm run report` | Menghasilkan & membuka visual **Allure Report** di browser |
 
 ---
 
@@ -149,7 +135,7 @@ npm run report
 npm run allure:open
 ```
 
-Dashboard Allure Report akan menampilkan statistik lengkap pengujian positif dan negatif beserta durasi dan log pengujian.
+Dashboard Allure Report akan menampilkan statistik lengkap pengujian berurutan, log langkah per langkah, durasi, dan status kelulusan.
 
 ---
 
