@@ -1,6 +1,6 @@
 # 📱 Appium Mobile Automation - BelajarBareng
 
-Proyek otomasi pengujian aplikasi mobile Android **BelajarBareng** menggunakan framework **WebdriverIO (WDIO)** dan **Appium** dengan driver **UiAutomator2**. Proyek ini menerapkan arsitektur modular yang memisahkan **Locators**, **Test Data**, **Helper / Utilities**, dan **Test Cases (Specs)**.
+Proyek otomasi pengujian aplikasi mobile Android **BelajarBareng** menggunakan framework **WebdriverIO (WDIO)** dan **Appium** dengan driver **UiAutomator2**. Proyek ini menerapkan arsitektur modular yang memisahkan **Locators**, **Test Data**, **Helper / Utilities**, dan **Test Cases (Specs)**, serta terintegrasi penuh dengan **Allure Reporting**.
 
 ---
 
@@ -15,7 +15,8 @@ Appium_Mobile_Automation_BelajarBareng/
 │   └── home_dump.xml              # Hierarki UI (XML Dump) layar Beranda / Postingan
 ├── test/
 │   ├── data/                      # 📁 Direktori Data Pengujian (Test Data)
-│   │   ├── auth.data.js           # Generator data registrasi dinamis & kredensial login
+│   │   ├── auth.data.js           # Generator data dinamis & manajemen penyimpanan session
+│   │   ├── session_user.json      # File penyimpanan user hasil generate registrasi
 │   │   └── post.data.js           # Data konten teks postingan
 │   ├── locators/                  # 📁 Direktori Selector Elemen (Locators)
 │   │   ├── login.locator.js       # Selector elemen form login
@@ -25,13 +26,16 @@ Appium_Mobile_Automation_BelajarBareng/
 │   │   ├── generator.util.js      # Generator data unik murni huruf (tanpa angka)
 │   │   └── scroll.util.js         # Fungsi gestur scroll (scroll down, scroll to bottom)
 │   └── specs/                     # 📁 Direktori Test Case / Skenario Pengujian
+│       ├── e2e_register_login_post.spec.js # 🌟 Skenario E2E (Registrasi -> Login -> Posting)
 │       ├── register.spec.js       # Skenario Registrasi Otomatis (Unik Tanpa Angka) + Scroll
-│       ├── login.spec.js          # Skenario Login dengan Valid User + Assertion
-│       └── post.spec.js           # Skenario Buat Postingan Baru + Scroll Feed
+│       ├── login.spec.js          # Skenario Login menggunakan akun hasil registrasi + Assertion
+│       └── post.spec.js           # Skenario Buat Postingan menggunakan akun hasil registrasi
+├── allure-results/                # File output mentah hasil pengujian Allure
+├── allure-report/                 # Dashboard visual HTML Allure Report
 ├── .gitignore                     # Konfigurasi file yang diabaikan Git
 ├── package.json                   # Dependencies & npm scripts
 ├── README.md                      # Dokumentasi lengkap proyek
-└── wdio.conf.js                   # Konfigurasi WebdriverIO & Appium
+└── wdio.conf.js                   # Konfigurasi WebdriverIO & Allure Reporter
 ```
 
 ---
@@ -56,86 +60,75 @@ Appium_Mobile_Automation_BelajarBareng/
 
 ## 🚀 Instalasi
 
-1. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
 ---
 
-## 📋 Detail Skenario & Fitur Unggulan
+## 📋 Alur Integrasi Data & Skenario Pengujian
 
-### 1. Skenario Registrasi Dinamis (`test/specs/register.spec.js`)
-* **Auto-Generated Username (Tanpa Angka)**: Menggunakan `generator.util.js` yang secara otomatis menghasilkan nama akun acak murni huruf pada setiap eksekusi pengujian (contoh: `melatibchdfabc`, `melatiafgehxyz`), sehingga pengujian registrasi tidak akan pernah gagal karena duplikasi nama.
-* **Alur**:
-  1. Klik tombol *"Belum punya akun? Register"* di layar login.
-  2. Mengisi form username acak, email unik, dan password.
-  3. Menyembunyikan virtual keyboard (`driver.hideKeyboard()`).
-  4. Melakukan gestur **scroll down** menggunakan `scrollUtil.scrollDown()` agar form dan tombol Register terlihat penuh.
-  5. Menekan tombol Register.
-  6. **Assertion**: Memverifikasi sistem kembali ke halaman login setelah registrasi sukses.
-
-### 2. Skenario Login & Assertion (`test/specs/login.spec.js`)
-* **Tujuan**: Melakukan login dan memvalidasi keberhasilan login.
-* **Alur**:
-  1. Memasukkan email dan password valid.
-  2. Menekan tombol Login.
-  3. **Assertion**:
-     - Memverifikasi Header Beranda `"Belajar Bareng"` berhasil ditampilkan (`expect(homeLocator.headerTitle).toBeDisplayed()`).
-     - Memverifikasi kolom input postingan tampil.
-  4. Melakukan **Scroll sampai bawah** (`scrollUtil.scrollToBottom()`) untuk melihat feed postingan secara keseluruhan.
-
-### 3. Skenario Buat Postingan (`test/specs/post.spec.js`)
-* **Tujuan**: Membuat postingan baru dan memvalidasi postingan di feed.
-* **Alur**:
-  1. Login ke aplikasi.
-  2. Mengisi teks: `"Sedang belajar membuat automation testing mobile dengan appium"`.
-  3. Menekan tombol Posting.
-  4. Melakukan scroll untuk melihat daftar feed postingan.
-
----
-
-## 📜 Helper Utilities
-
-### A. Generator Unik Tanpa Angka (`test/utils/generator.util.js`)
-Mengubah timestamp milidetik dan kombinasi alfabet menjadi huruf (A-Z) sehingga setiap registrasi selalu menghasilkan nama yang berbeda dan bebas dari angka:
-```javascript
-const generatorUtil = require('../utils/generator.util');
-const user = generatorUtil.generateRegisterUser('melati');
-// Output -> { username: 'melatibchdfabc', email: 'melatibchdfabc@gmail.com', password: '@Melati1' }
-```
-
-### B. Gestur Scroll (`test/utils/scroll.util.js`)
-Gestur scroll dibuat menggunakan **W3C Pointer Actions** yang stabil dan kompatibel di semua versi Android:
-```javascript
-const scrollUtil = require('../utils/scroll.util');
-
-// Scroll ke bawah sekali
-await scrollUtil.scrollDown(0.7, 0.3, 500);
-
-// Scroll berulang sampai ke bagian paling bawah
-await scrollUtil.scrollToBottom(3);
-```
+### 🔄 Alur End-to-End (`test/specs/e2e_register_login_post.spec.js`)
+1. **Registrasi Akun Baru**:
+   - Otomatis membuat username & email unik tanpa angka (contoh: `melatibchdfabc`, `melatibchdfabc@gmail.com`).
+   - Data user yang di-generate langsung **disimpan secara otomatis** ke file `test/data/session_user.json`.
+   - Mengisi form registrasi, scroll ke bawah, dan klik tombol Register.
+2. **Login dengan Akun Hasil Generate**:
+   - Membaca data akun dari `session_user.json`.
+   - Mengisi email & password dari user yang baru saja didaftarkan.
+   - Klik Login dan memvalidasi assertion (header beranda & form input postingan muncul).
+   - Melakukan scroll sampai bawah pada beranda.
+3. **Buat Postingan dengan Akun Tersebut**:
+   - Mengisi teks postingan: `"Sedang belajar membuat automation testing mobile dengan appium"`.
+   - Klik tombol Posting.
+   - Scroll feed untuk memverifikasi postingan telah masuk.
 
 ---
 
 ## ▶️ Menjalankan Pengujian
 
-### 1. Jalankan Semua Skenario Pengujian
+### 1. Jalankan Alur Lengkap (E2E Flow: Registrasi ➡️ Login ➡️ Posting)
+```bash
+npm run test:e2e
+```
+
+### 2. Jalankan Skenario Tertentu Saja
+* **Skenario Registrasi saja**:
+  ```bash
+  npm run test:register
+  ```
+* **Skenario Login & Assertion saja**:
+  ```bash
+  npm run test:login
+  ```
+* **Skenario Buat Postingan saja**:
+  ```bash
+  npm run test:post
+  ```
+
+### 3. Jalankan Semua Test Suite
 ```bash
 npm run test:mobile
 ```
 
-### 2. Jalankan Skenario Tertentu
-* **Skenario Registrasi saja**:
+---
+
+## 📊 Menghasilkan & Membuka Allure Report
+
+Setelah pengujian dijalankan, Anda dapat membuat laporan visual interaktif Allure Report dengan perintah:
+
+### 1. Generate & Buka Laporan Sekaligus:
+```bash
+npm run report
+```
+
+### 2. Atau Secara Terpisah:
+* **Generate Laporan**:
   ```bash
-  npx wdio run ./wdio.conf.js --spec ./test/specs/register.spec.js
+  npm run allure:generate
   ```
-* **Skenario Login & Assertion saja**:
+* **Buka Laporan di Browser**:
   ```bash
-  npx wdio run ./wdio.conf.js --spec ./test/specs/login.spec.js
+  npm run allure:open
   ```
-* **Skenario Buat Postingan saja**:
-  ```bash
-  npx wdio run ./wdio.conf.js --spec ./test/specs/post.spec.js
-  ```
+Laporan akan otomatis terbuka di browser menampilkan grafik ringkasan pengujian, durasi, log langkah, dan screenshot kegagalan (jika ada).

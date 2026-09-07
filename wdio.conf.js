@@ -10,7 +10,7 @@ exports.config = {
     capabilities: [{
         platformName: 'Android',
         'appium:automationName': 'UiAutomator2',
-        'appium:deviceName': 'Android Device', // Ganti dengan nama perangkat Android yang sesuai (karena hanya satu perangkat yang terhubung, gunakan nama generik)
+        'appium:deviceName': 'Android Device',
         'appium:app': path.join(process.cwd(), 'app/app-release.apk'),
         'appium:appPackage': 'com.example.belajar_bareng',
         'appium:appActivity': 'com.example.belajar_bareng.MainActivity',
@@ -21,8 +21,22 @@ exports.config = {
     framework: 'mocha',
     mochaOpts: {
         ui: 'bdd',
-        timeout: 60000
+        timeout: 90000
     },
-    reporters: ['spec'],
-    services: ['appium']
+    reporters: [
+        'spec',
+        ['allure', {
+            outputDir: 'allure-results',
+            disableWebdriverStepsReporting: true,
+            disableWebdriverScreenshotsReporting: false,
+        }]
+    ],
+    services: ['appium'],
+
+    // Otomatis mengambil screenshot saat terjadi error dan melampirkannya ke Allure Report
+    afterTest: async function(test, context, { error, result, duration, passed, retries }) {
+        if (error) {
+            await browser.takeScreenshot();
+        }
+    }
 };

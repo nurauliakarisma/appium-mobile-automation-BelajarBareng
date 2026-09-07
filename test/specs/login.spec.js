@@ -1,19 +1,22 @@
 const loginLocator = require('../locators/login.locator');
 const homeLocator = require('../locators/home.locator');
-const { validUser } = require('../data/auth.data');
+const { getSavedSessionUser } = require('../data/auth.data');
 const scrollUtil = require('../utils/scroll.util');
 
 describe('Skenario Login & Assertion - BelajarBareng', () => {
-    it('Harus berhasil login dengan data valid dan memverifikasi halaman beranda', async () => {
-        // 1. Masukkan Email
+    it('Harus berhasil login dengan data hasil generate dan memverifikasi halaman beranda', async () => {
+        // Mengambil akun yang baru saja di-generate saat registrasi
+        const user = getSavedSessionUser();
+
+        // 1. Masukkan Email dari user hasil generate
         await loginLocator.inputEmail.waitForDisplayed({ timeout: 15000 });
         await loginLocator.inputEmail.click();
-        await loginLocator.inputEmail.setValue(validUser.email);
+        await loginLocator.inputEmail.setValue(user.email);
 
-        // 2. Masukkan Password
+        // 2. Masukkan Password dari user hasil generate
         await loginLocator.inputPassword.waitForDisplayed({ timeout: 15000 });
         await loginLocator.inputPassword.click();
-        await loginLocator.inputPassword.setValue(validUser.password);
+        await loginLocator.inputPassword.setValue(user.password);
 
         // 3. Sembunyikan keyboard jika aktif
         if (await driver.isKeyboardShown()) {
@@ -25,12 +28,12 @@ describe('Skenario Login & Assertion - BelajarBareng', () => {
         await loginLocator.btnLogin.click();
 
         // 5. ASSERTION LOGIN
-        // Assert A: Memastikan Header Halaman Beranda "Belajar Bareng" berhasil ditampilkan
+        // Assert A: Memastikan Header Beranda "Belajar Bareng" berhasil ditampilkan
         await homeLocator.headerTitle.waitForDisplayed({ timeout: 15000 });
         const isHeaderDisplayed = await homeLocator.headerTitle.isDisplayed();
         expect(isHeaderDisplayed).toBe(true);
 
-        // Assert B: Memastikan Kolom Buat Postingan ("Apa yang kamu pikirkan hari ini?") tampil
+        // Assert B: Memastikan Kolom Input Postingan tampil
         await homeLocator.inputPost.waitForDisplayed({ timeout: 10000 });
         const isInputPostDisplayed = await homeLocator.inputPost.isDisplayed();
         expect(isInputPostDisplayed).toBe(true);

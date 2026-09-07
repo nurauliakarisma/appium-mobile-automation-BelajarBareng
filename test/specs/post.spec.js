@@ -1,18 +1,20 @@
 const loginLocator = require('../locators/login.locator');
 const homeLocator = require('../locators/home.locator');
-const { validUser } = require('../data/auth.data');
+const { getSavedSessionUser } = require('../data/auth.data');
 const { newPost } = require('../data/post.data');
 const scrollUtil = require('../utils/scroll.util');
 
 describe('Skenario Buat Postingan - BelajarBareng', () => {
-    it('Harus login terlebih dahulu sebelum membuat postingan', async () => {
+    it('Harus login terlebih dahulu menggunakan akun hasil generate', async () => {
+        const user = getSavedSessionUser();
+
         await loginLocator.inputEmail.waitForDisplayed({ timeout: 15000 });
         await loginLocator.inputEmail.click();
-        await loginLocator.inputEmail.setValue(validUser.email);
+        await loginLocator.inputEmail.setValue(user.email);
 
         await loginLocator.inputPassword.waitForDisplayed({ timeout: 15000 });
         await loginLocator.inputPassword.click();
-        await loginLocator.inputPassword.setValue(validUser.password);
+        await loginLocator.inputPassword.setValue(user.password);
 
         if (await driver.isKeyboardShown()) {
             await driver.hideKeyboard();
@@ -25,7 +27,7 @@ describe('Skenario Buat Postingan - BelajarBareng', () => {
     });
 
     it('Harus berhasil membuat postingan baru dan scroll melihat postingan di feed', async () => {
-        // 1. Masukkan konten postingan
+        // 1. Masukkan teks konten postingan
         await homeLocator.inputPost.waitForDisplayed({ timeout: 15000 });
         await homeLocator.inputPost.click();
         await homeLocator.inputPost.setValue(newPost.content);
@@ -39,7 +41,7 @@ describe('Skenario Buat Postingan - BelajarBareng', () => {
         await homeLocator.btnPosting.waitForDisplayed({ timeout: 10000 });
         await homeLocator.btnPosting.click();
 
-        // 4. Tunggu sesaat dan lakukan scroll ke bawah untuk melihat daftar postingan
+        // 4. Tunggu sesaat dan lakukan scroll ke bawah untuk melihat daftar feed postingan
         await browser.pause(2000);
         await scrollUtil.scrollDown(0.7, 0.3, 600);
 
