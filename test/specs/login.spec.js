@@ -1,46 +1,35 @@
 const loginLocator = require('../locators/login.locator');
 const homeLocator = require('../locators/home.locator');
-const { getSavedSessionUser } = require('../data/auth.data');
+const { validManualUser } = require('../data/auth.data');
 const scrollUtil = require('../utils/scroll.util');
+const appUtil = require('../utils/app.util');
 
-describe('Skenario Login & Assertion - BelajarBareng', () => {
-    it('Harus berhasil login dengan data hasil generate dan memverifikasi halaman beranda', async () => {
-        // Mengambil akun yang baru saja di-generate saat registrasi
-        const user = getSavedSessionUser();
+describe('Login dengan User Valid', () => {
+    before(async () => {
+        await appUtil.resetToLoginScreen();
+    });
 
-        // 1. Masukkan Email dari user hasil generate
+    it('Harus berhasil login dan memvalidasi beranda', async () => {
         await loginLocator.inputEmail.waitForDisplayed({ timeout: 15000 });
         await loginLocator.inputEmail.click();
-        await loginLocator.inputEmail.setValue(user.email);
+        await loginLocator.inputEmail.setValue(validManualUser.email);
 
-        // 2. Masukkan Password dari user hasil generate
         await loginLocator.inputPassword.waitForDisplayed({ timeout: 15000 });
         await loginLocator.inputPassword.click();
-        await loginLocator.inputPassword.setValue(user.password);
+        await loginLocator.inputPassword.setValue(validManualUser.password);
 
-        // 3. Sembunyikan keyboard jika aktif
         if (await driver.isKeyboardShown()) {
             await driver.hideKeyboard();
         }
 
-        // 4. Klik tombol Login
         await loginLocator.btnLogin.waitForDisplayed({ timeout: 10000 });
         await loginLocator.btnLogin.click();
 
-        // 5. ASSERTION LOGIN
-        // Assert A: Memastikan Header Beranda "Belajar Bareng" berhasil ditampilkan
         await homeLocator.headerTitle.waitForDisplayed({ timeout: 15000 });
-        const isHeaderDisplayed = await homeLocator.headerTitle.isDisplayed();
-        expect(isHeaderDisplayed).toBe(true);
+        expect(await homeLocator.headerTitle.isDisplayed()).toBe(true);
+        expect(await homeLocator.inputPost.isDisplayed()).toBe(true);
 
-        // Assert B: Memastikan Kolom Input Postingan tampil
-        await homeLocator.inputPost.waitForDisplayed({ timeout: 15000 });
-        const isInputPostDisplayed = await homeLocator.inputPost.isDisplayed();
-        expect(isInputPostDisplayed).toBe(true);
-
-        // 6. SCROLL SAMPAI BAWAH (Melihat feed postingan sampai akhir)
         await scrollUtil.scrollToBottom(2);
-
-        await browser.pause(2000);
+        await browser.pause(1000);
     });
 });

@@ -1,10 +1,4 @@
-/**
- * Helper Utility untuk Manajemen State Aplikasi (Reset Sesi & Navigasi Layar)
- */
 class AppUtil {
-    /**
-     * Mereset data/sesi aplikasi agar selalu kembali ke halaman Login awal yang bersih
-     */
     async resetToLoginScreen() {
         try {
             await driver.execute('mobile: clearApp', { appId: 'com.example.belajar_bareng' });
@@ -16,7 +10,7 @@ class AppUtil {
             }
         }
         await driver.activateApp('com.example.belajar_bareng');
-        await browser.pause(2000);
+        await browser.pause(1500);
     }
 }
 

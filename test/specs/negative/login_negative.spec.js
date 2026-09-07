@@ -1,10 +1,14 @@
 const loginLocator = require('../../locators/login.locator');
 const homeLocator = require('../../locators/home.locator');
 const { negativeLogin } = require('../../data/auth.data');
+const appUtil = require('../../utils/app.util');
 
-describe('[NEGATIF] Fitur Login - BelajarBareng', () => {
-    it('Kasus Negatif 1: Gagal login ketika memasukkan PASSWORD YANG SALAH', async () => {
-        // 1. Masukkan Email Valid tetapi Password Salah
+describe('Login Negatif Flow', () => {
+    beforeEach(async () => {
+        await appUtil.resetToLoginScreen();
+    });
+
+    it('Gagal login ketika memasukkan password salah', async () => {
         await loginLocator.inputEmail.waitForDisplayed({ timeout: 15000 });
         await loginLocator.inputEmail.click();
         await loginLocator.inputEmail.setValue(negativeLogin.wrongPassword.email);
@@ -17,22 +21,15 @@ describe('[NEGATIF] Fitur Login - BelajarBareng', () => {
             await driver.hideKeyboard();
         }
 
-        // 2. Klik tombol Login
         await loginLocator.btnLogin.waitForDisplayed({ timeout: 10000 });
         await loginLocator.btnLogin.click();
 
-        await browser.pause(2000);
-
-        // 3. ASSERTION: Sistem menolak login dan TETAP berada di halaman login (tidak masuk ke beranda)
-        const isStillOnLogin = await loginLocator.btnLogin.isDisplayed();
-        expect(isStillOnLogin).toBe(true);
-
-        const isHomeDisplayed = await homeLocator.headerTitle.isDisplayed();
-        expect(isHomeDisplayed).toBe(false);
+        await browser.pause(1500);
+        expect(await loginLocator.btnLogin.isDisplayed()).toBe(true);
+        expect(await homeLocator.headerTitle.isDisplayed()).toBe(false);
     });
 
-    it('Kasus Negatif 2: Gagal login dengan EMAIL YANG BELUM TERDAFTAR', async () => {
-        // 1. Masukkan Email yang belum pernah didaftarkan
+    it('Gagal login dengan email yang belum terdaftar', async () => {
         await loginLocator.inputEmail.waitForDisplayed({ timeout: 15000 });
         await loginLocator.inputEmail.click();
         await loginLocator.inputEmail.setValue(negativeLogin.unregisteredEmail.email);
@@ -45,19 +42,14 @@ describe('[NEGATIF] Fitur Login - BelajarBareng', () => {
             await driver.hideKeyboard();
         }
 
-        // 2. Klik tombol Login
         await loginLocator.btnLogin.waitForDisplayed({ timeout: 10000 });
         await loginLocator.btnLogin.click();
 
-        await browser.pause(2000);
-
-        // 3. ASSERTION: Sistem tetap di halaman Login
-        const isStillOnLogin = await loginLocator.btnLogin.isDisplayed();
-        expect(isStillOnLogin).toBe(true);
+        await browser.pause(1500);
+        expect(await loginLocator.btnLogin.isDisplayed()).toBe(true);
     });
 
-    it('Kasus Negatif 3: Gagal login ketika SEMUA FIELD KOSONG', async () => {
-        // 1. Kosongkan input
+    it('Gagal login ketika semua field kosong', async () => {
         await loginLocator.inputEmail.waitForDisplayed({ timeout: 15000 });
         await loginLocator.inputEmail.clearValue();
         await loginLocator.inputPassword.clearValue();
@@ -66,14 +58,10 @@ describe('[NEGATIF] Fitur Login - BelajarBareng', () => {
             await driver.hideKeyboard();
         }
 
-        // 2. Klik tombol Login
         await loginLocator.btnLogin.waitForDisplayed({ timeout: 10000 });
         await loginLocator.btnLogin.click();
 
-        await browser.pause(2000);
-
-        // 3. ASSERTION: Sistem tidak berpindah halaman
-        const isStillOnLogin = await loginLocator.btnLogin.isDisplayed();
-        expect(isStillOnLogin).toBe(true);
+        await browser.pause(1500);
+        expect(await loginLocator.btnLogin.isDisplayed()).toBe(true);
     });
 });
