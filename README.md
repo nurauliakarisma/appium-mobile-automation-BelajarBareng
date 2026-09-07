@@ -1,6 +1,6 @@
 # 📱 Appium Mobile Automation - BelajarBareng
 
-Proyek otomasi pengujian aplikasi mobile Android **BelajarBareng** berbasis **WebdriverIO (WDIO)** dan **Appium** dengan driver **UiAutomator2**.
+Proyek otomasi pengujian aplikasi mobile Android **BelajarBareng** menggunakan framework **WebdriverIO (WDIO)** dan **Appium** dengan driver **UiAutomator2**. Proyek ini menerapkan arsitektur modular yang memisahkan **Locators**, **Test Data**, **Helper / Utilities**, dan **Test Cases (Specs)**.
 
 ---
 
@@ -14,31 +14,35 @@ Appium_Mobile_Automation_BelajarBareng/
 │   ├── login_dump.xml             # Hierarki UI (XML Dump) layar Login
 │   └── home_dump.xml              # Hierarki UI (XML Dump) layar Beranda / Postingan
 ├── test/
-│   └── specs/
-│       ├── login.spec.js          # Skrip pengujian fitur Login
-│       ├── open.test.js           # Skrip pengujian pembukaan aplikasi
-│       └── post/
-│           └── post.spec.js       # Skrip pengujian fitur Buat Postingan
+│   ├── data/                      # 📁 Direktori Data Pengujian (Test Data)
+│   │   ├── auth.data.js           # Data registrasi (melati) dan kredensial login
+│   │   └── post.data.js           # Data konten teks postingan
+│   ├── locators/                  # 📁 Direktori Selector Elemen (Locators)
+│   │   ├── login.locator.js       # Selector elemen form login
+│   │   ├── register.locator.js    # Selector elemen form registrasi
+│   │   └── home.locator.js        # Selector elemen beranda & form posting
+│   ├── utils/                     # 📁 Direktori Helper / Utility
+│   │   └── scroll.util.js         # Fungsi gestur scroll (scroll down, scroll to bottom)
+│   └── specs/                     # 📁 Direktori Test Case / Skenario Pengujian
+│       ├── register.spec.js       # Skenario Registrasi Akun Baru (Melati) + Scroll
+│       ├── login.spec.js          # Skenario Login dengan Valid User + Assertion
+│       └── post.spec.js           # Skenario Buat Postingan Baru + Scroll Feed
 ├── .gitignore                     # Konfigurasi file yang diabaikan Git
 ├── package.json                   # Dependencies & npm scripts
-├── README.md                      # Dokumentasi proyek
-└── wdio.conf.js                   # Konfigurasi utama WebdriverIO & Appium
+├── README.md                      # Dokumentasi lengkap proyek
+└── wdio.conf.js                   # Konfigurasi WebdriverIO & Appium
 ```
 
 ---
 
 ## 🛠️ Prasyarat (Prerequisites)
 
-Sebelum menjalankan pengujian otomasi, pastikan lingkungan berikut telah terpasang dan terkonfigurasi:
-
 1. **Node.js**: Versi LTS (v18.x atau lebih baru).
 2. **Java Development Kit (JDK)**: Versi 11 atau 17.
-3. **Android SDK**:
-   - `ANDROID_HOME` telah dikonfigurasi pada Environment Variables.
-   - `adb` (Android Debug Bridge) dapat diakses dari terminal.
-4. **Device / Emulator Android**:
-   - Fisik (USB Debugging / Wireless Debugging aktif) atau Emulator (AVD).
-   - Pastikan device terdeteksi dengan perintah:
+3. **Android SDK**: `ANDROID_HOME` dan `adb` sudah terdaftar di Environment Variables.
+4. **Device Android / Emulator**:
+   - Fisik (USB Debugging / Wireless Debugging aktif) atau Emulator.
+   - Pastikan device terdeteksi:
      ```bash
      adb devices
      ```
@@ -49,94 +53,87 @@ Sebelum menjalankan pengujian otomasi, pastikan lingkungan berikut telah terpasa
 
 ---
 
-## 🚀 Instalasi & Setup
+## 🚀 Instalasi
 
-1. **Clone repository**:
-   ```bash
-   git clone <URL_REPOSITORY>
-   cd Appium_Mobile_Automation_BelajarBareng
-   ```
-
-2. **Install dependencies**:
+1. **Install dependencies**:
    ```bash
    npm install
    ```
 
 ---
 
-## ⚙️ Konfigurasi (`wdio.conf.js`)
+## 📋 Detail Skenario & Arsitektur
 
-Pengujian dikonfigurasi untuk menjalankan APK yang berada di direktori `app/app-release.apk`:
+### 1. Skenario Registrasi (`test/specs/register.spec.js`)
+* **Tujuan**: Mendaftarkan akun baru dengan data:
+  - **Username**: `melati`
+  - **Email**: `melati@gmail.com`
+  - **Password**: `@Melati1`
+* **Alur**:
+  1. Klik tombol *"Belum punya akun? Register"* di layar login.
+  2. Mengisi form username, email, dan password dari `test/data/auth.data.js`.
+  3. Menyembunyikan virtual keyboard (`driver.hideKeyboard()`).
+  4. Melakukan gestur **scroll down** menggunakan `scrollUtil.scrollDown()` agar form dan tombol Register terlihat penuh.
+  5. Menekan tombol Register.
+  6. **Assertion**: Memverifikasi sistem kembali ke halaman login.
 
-```javascript
-capabilities: [{
-    platformName: 'Android',
-    'appium:automationName': 'UiAutomator2',
-    'appium:deviceName': 'Android Device',
-    'appium:app': path.join(process.cwd(), 'app/app-release.apk'),
-    'appium:appPackage': 'com.example.belajar_bareng',
-    'appium:appActivity': 'com.example.belajar_bareng.MainActivity',
-    'appium:autoGrantPermissions': true,
-    'appium:newCommandTimeout': 240,
-}]
-```
+### 2. Skenario Login & Assertion (`test/specs/login.spec.js`)
+* **Tujuan**: Melakukan login dan memvalidasi keberhasilan login.
+* **Alur**:
+  1. Memasukkan email dan password valid.
+  2. Menekan tombol Login.
+  3. **Assertion**:
+     - Memverifikasi Header Beranda `"Belajar Bareng"` berhasil ditampilkan (`expect(homeLocator.headerTitle).toBeDisplayed()`).
+     - Memverifikasi kolom input postingan tampil.
+  4. Melakukan **Scroll sampai bawah** (`scrollUtil.scrollToBottom()`) untuk melihat feed postingan secara keseluruhan.
+
+### 3. Skenario Buat Postingan (`test/specs/post.spec.js`)
+* **Tujuan**: Membuat postingan baru dan memvalidasi postingan di feed.
+* **Alur**:
+  1. Login ke aplikasi.
+  2. Mengisi teks: `"Sedang belajar membuat automation testing mobile dengan appium"`.
+  3. Menekan tombol Posting.
+  4. Melakukan scroll untuk melihat daftar feed postingan.
 
 ---
 
-## 📋 Fitur & Referensi Locator Elemen
+## 📜 Helper Utility Gestur Scroll (`test/utils/scroll.util.js`)
 
-Elemen UI aplikasi diambil langsung dari file XML Dump di folder `dumps/`:
+Gestur scroll dibuat menggunakan **W3C Pointer Actions** sehingga stabil dan kompatibel di semua versi Android:
 
-### 1. Fitur Login (`test/specs/login.spec.js`)
-* **Input Email**:
-  - Diambil dari: `dumps/login_dump.xml`
-  - Locator: `$('//*[@resource-id="email_input"]')`
-  - Nilai: `aulia1@gmail.com`
-* **Input Password**:
-  - Diambil dari: `dumps/login_dump.xml`
-  - Locator: `$('//*[@resource-id="password_input"]')`
-  - Nilai: `@Aulia1`
-* **Tombol Login**:
-  - Diambil dari: `dumps/login_dump.xml` (`content-desc="Login"`)
-  - Locator: `$('~Login')` *(Accessibility ID)*
+```javascript
+// Contoh pemanggilan scroll helper di test case
+const scrollUtil = require('../utils/scroll.util');
 
-### 2. Fitur Buat Postingan (`test/specs/post/post.spec.js`)
-* **Kolom Input Postingan**:
-  - Diambil dari: `dumps/home_dump.xml` (`hint="Buat Postingan... Apa yang kamu pikirkan hari ini?"`)
-  - Locator: `$('//android.widget.EditText[contains(@hint, "Apa yang kamu pikirkan")]')`
-  - Nilai: `"Sedang belajar membuat automation testing mobile dengan appium"`
-* **Tombol Posting**:
-  - Diambil dari: `dumps/home_dump.xml` (`content-desc="Posting"`)
-  - Locator: `$('~Posting')` *(Accessibility ID)*
+// Scroll ke bawah sekali
+await scrollUtil.scrollDown(0.7, 0.3, 500);
+
+// Scroll berulang sampai ke bagian paling bawah
+await scrollUtil.scrollToBottom(3);
+
+// Scroll sampai elemen tertentu terlihat
+await scrollUtil.scrollToElement(element);
+```
 
 ---
 
 ## ▶️ Menjalankan Pengujian
 
-### 1. Menjalankan Semua Pengujian
+### 1. Jalankan Semua Skenario Pengujian
 ```bash
 npm run test:mobile
 ```
 
-### 2. Menjalankan Pengujian Login Saja
-```bash
-npx wdio run ./wdio.conf.js --spec ./test/specs/login.spec.js
-```
-
-### 3. Menjalankan Pengujian Buat Postingan Saja
-```bash
-npx wdio run ./wdio.conf.js --spec ./test/specs/post/post.spec.js
-```
-
----
-
-## 💡 Catatan Teknis (Best Practices)
-
-- **Keyboard Handling**: Sebelum menekan tombol submit / aksi, selalu gunakan pemeriksaan virtual keyboard:
-  ```javascript
-  if (await driver.isKeyboardShown()) {
-      await driver.hideKeyboard();
-  }
+### 2. Jalankan Skenario Tertentu
+* **Skenario Registrasi saja**:
+  ```bash
+  npx wdio run ./wdio.conf.js --spec ./test/specs/register.spec.js
   ```
-- **Implicit & Explicit Waits**: Gunakan `waitForDisplayed({ timeout: 15000 })` untuk mengantisipasi jeda loading aplikasi saat transisi halaman.
-- **XML Dumps**: Skrip pengujian secara otomatis memperbarui file XML dump di folder `dumps/` setiap kali pengujian dijalankan.
+* **Skenario Login & Assertion saja**:
+  ```bash
+  npx wdio run ./wdio.conf.js --spec ./test/specs/login.spec.js
+  ```
+* **Skenario Buat Postingan saja**:
+  ```bash
+  npx wdio run ./wdio.conf.js --spec ./test/specs/post.spec.js
+  ```
