@@ -1,68 +1,53 @@
-const fs = require('fs');
-const path = require('path');
+const allureReporter = require('@wdio/allure-reporter').default;
+const loginLocator = require('../../locators/login.locator');
+const homeLocator = require('../../locators/home.locator');
+const { validManualUser } = require('../../data/auth.data');
+const { newPost } = require('../../data/post.data');
+const scrollUtil = require('../../utils/scroll.util');
+const appUtil = require('../../utils/app.util');
 
-describe('Mobile Automation - Fitur Buat Postingan BelajarBareng', () => {
-    it('Harus login terlebih dahulu sebelum membuat postingan', async () => {
-        // Locator input email
-        const inputEmail = await $('//*[@resource-id="email_input"]');
-        await inputEmail.waitForDisplayed({ timeout: 15000 });
-        await inputEmail.click();
-        await inputEmail.setValue('aulia1@gmail.com');
-
-        // Locator input password
-        const inputPassword = await $('//*[@resource-id="password_input"]');
-        await inputPassword.waitForDisplayed({ timeout: 15000 });
-        await inputPassword.click();
-        await inputPassword.setValue('@Aulia1');
-
-        // Sembunyikan keyboard jika masih aktif
-        if (await driver.isKeyboardShown()) {
-            await driver.hideKeyboard();
-        }
-
-        // Locator tombol Login
-        const btnLogin = await $('~Login');
-        await btnLogin.waitForDisplayed({ timeout: 10000 });
-        await btnLogin.click();
-
-        await browser.pause(3000);
+describe('Post Management - Create & Feed', () => {
+    before(async () => {
+        await appUtil.resetToLoginScreen();
     });
 
-    it('Harus berhasil mengisi teks dan mengirim postingan baru', async () => {
-        // Simpan dump XML halaman Beranda / Postingan ke folder dumps/
-        const dumpDir = path.join(process.cwd(), 'dumps');
-        if (!fs.existsSync(dumpDir)) {
-            fs.mkdirSync(dumpDir, { recursive: true });
-        }
-        const homePageSource = await browser.getPageSource();
-        fs.writeFileSync(path.join(dumpDir, 'home_dump.xml'), homePageSource);
+    it('Harus berhasil login dan membuat postingan baru di feed', async () => {
+        allureReporter.addEpic('Post Management');
+        allureReporter.addFeature('Feed & Posting');
+        allureReporter.addStory('Create Post');
+        allureReporter.addSeverity('critical');
 
-        /**
-         * 1. KOLOM TEKS POSTINGAN ("Apa yang kamu pikirkan hari ini?")
-         * Diambil dari home_dump.xml:
-         * <android.widget.EditText hint="Buat Postingan&#10;Apa yang kamu pikirkan hari ini?" />
-         */
-        const inputPost = await $('//android.widget.EditText[contains(@hint, "Apa yang kamu pikirkan")]');
-        await inputPost.waitForDisplayed({ timeout: 15000 });
-        await inputPost.click();
-        await inputPost.setValue('Sedang belajar membuat automation testing mobile dengan appium');
+        await loginLocator.inputEmail.waitForDisplayed({ timeout: 8000 });
+        await loginLocator.inputEmail.click();
+        await loginLocator.inputEmail.setValue(validManualUser.email);
 
-        // Sembunyikan keyboard agar tombol Posting terlihat jelas
+        await loginLocator.inputPassword.waitForDisplayed({ timeout: 8000 });
+        await loginLocator.inputPassword.click();
+        await loginLocator.inputPassword.setValue(validManualUser.password);
+
         if (await driver.isKeyboardShown()) {
             await driver.hideKeyboard();
         }
 
-        /**
-         * 2. TOMBOL POSTING
-         * Diambil dari home_dump.xml:
-         * <android.widget.Button content-desc="Posting" />
-         * Locator: ~Posting (Accessibility ID)
-         */
-        const btnPosting = await $('~Posting');
-        await btnPosting.waitForDisplayed({ timeout: 10000 });
-        await btnPosting.click();
+        await loginLocator.btnLogin.waitForDisplayed({ timeout: 8000 });
+        await loginLocator.btnLogin.click();
 
-        // Jeda waktu untuk memastikan proses posting berhasil
-        await browser.pause(3000);
+        await homeLocator.headerTitle.waitForDisplayed({ timeout: 10000 });
+
+        await homeLocator.inputPost.waitForDisplayed({ timeout: 8000 });
+        await homeLocator.inputPost.click();
+        await homeLocator.inputPost.setValue(newPost.content);
+
+        if (await driver.isKeyboardShown()) {
+            await driver.hideKeyboard();
+        }
+
+        await homeLocator.btnPosting.waitForDisplayed({ timeout: 8000 });
+        await homeLocator.btnPosting.click();
+
+        await scrollUtil.scrollDown(0.7, 0.3, 500);
+
+        expect(await homeLocator.feedList.isDisplayed()).toBe(true);
+        await scrollUtil.scrollToBottom(2);
     });
 });

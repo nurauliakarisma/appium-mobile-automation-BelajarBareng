@@ -1,23 +1,56 @@
-# Dependencies
+# ==========================================
+# 1. Dependencies
+# ==========================================
 node_modules/
+package-lock.json.bak
 
-# Logs & Debug
+# ==========================================
+# 2. Allure Report & Test Results
+# ==========================================
+allure-results/
+allure-report/
+reports/
+screenshots/
+*.png
+*.jpg
+*.jpeg
+*.mp4
+
+# ==========================================
+# 3. Temporary Test & Runtime Data
+# ==========================================
+test/data/session_user.json
+*.tmp
+.tmp/
+
+# Abaikan semua file XML sementara di root, KECUALI yang di dalam folder dumps/
+*.xml
+!dumps/*.xml
+
+# ==========================================
+# 4. Logs & Debug
+# ==========================================
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
-# Test Reports & Temp
-reports/
-allure-results/
-allure-report/
-.tmp/
-
-# OS & IDE
+# ==========================================
+# 5. OS & Editor Specific Files
+# ==========================================
 .DS_Store
 Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Environment
+# ==========================================
+# 6. Environment & Secret Keys
+# ==========================================
 .env
+.env.*
+!.env.example
