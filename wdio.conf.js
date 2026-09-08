@@ -4,7 +4,7 @@ exports.config = {
     runner: 'local',
     port: 4723,
     specs: [
-        './test/specs/**/*.js'
+        './test/specs/**/*.spec.js'
     ],
     maxInstances: 1,
     capabilities: [{
@@ -15,13 +15,14 @@ exports.config = {
         'appium:appPackage': 'com.example.belajar_bareng',
         'appium:appActivity': 'com.example.belajar_bareng.MainActivity',
         'appium:autoGrantPermissions': true,
-        'appium:newCommandTimeout': 240,
+        'appium:newCommandTimeout': 120,
     }],
     logLevel: 'info',
+    waitforTimeout: 8000,
     framework: 'mocha',
     mochaOpts: {
         ui: 'bdd',
-        timeout: 90000
+        timeout: 45000
     },
     reporters: [
         'spec',

@@ -1,8 +1,8 @@
 # 📱 Mobile Automation Testing - BelajarBareng
 
-Proyek otomasi pengujian aplikasi mobile Android **BelajarBareng** menggunakan framework **WebdriverIO (WDIO)** dan **Appium** dengan driver **UiAutomator2**. 
+Proyek otomasi pengujian aplikasi mobile Android **BelajarBareng** menggunakan framework **WebdriverIO (WDIO)** dan **Appium** dengan driver **UiAutomator2**.
 
-Proyek ini menerapkan arsitektur modular **Page Object Pattern (Locators, Test Data, Utilities, Specs)** yang tersusun rapi memisahkan **Skenario Positif (Positive Cases)**, **Skenario Negatif (Negative Cases)**, **Login Manual User Valid**, **Auto-Generated Data Unik**, dan integrasi **Allure Reporting**.
+Proyek ini menerapkan arsitektur modular **Page Object Pattern (Locators, Test Data, Utilities, Specs)** yang tersusun rapi memisahkan fitur autentikasi, manajemen postingan, skenario End-to-End (E2E), auto-generated dataset tanpa angka, serta integrasi **Allure Reporting BDD** dengan widget *Environment* dan grafik *Trend History*.
 
 ---
 
@@ -11,13 +11,9 @@ Proyek ini menerapkan arsitektur modular **Page Object Pattern (Locators, Test D
 - [📂 Struktur Direktori Proyek](#-struktur-direktori-proyek)
 - [🛠️ Prasyarat (Prerequisites)](#️-prasyarat-prerequisites)
 - [🚀 Instalasi & Setup](#-instalasi--setup)
-- [🔄 Alur Urutan Pengujian (Sequential Flow)](#-alur-urutan-pengujian-sequential-flow)
-  - [1. Tahap 1: Login Manual User Valid](#1-tahap-1-login-manual-user-valid)
-  - [2. Tahap 2: Registrasi dengan Auto-Generate (Tanpa Angka)](#2-tahap-2-registrasi-dengan-auto-generate-tanpa-angka)
-  - [3. Tahap 3: Skenario Positif (Login Akun Baru & Posting)](#3-tahap-3-skenario-positif-login-akun-baru--posting)
-  - [4. Tahap 4: Skenario Negatif (Validasi Error & Field Kosong)](#4-tahap-4-skenario-negatif-validasi-error--field-kosong)
+- [📊 Arsitektur Pengujian & Hierarki BDD Allure](#-arsitektur-pengujian--hierarki-bdd-allure)
 - [▶️ Perintah Menjalankan Pengujian](#️-perintah-menjalankan-pengujian)
-- [📊 Menghasilkan & Membuka Allure Report](#-menghasilkan--membuka-allure-report)
+- [📈 Menghasilkan & Membuka Allure Report](#-menghasilkan--membuka-allure-report)
 - [🔍 Panduan Appium Inspector](#-panduan-appium-inspector)
 - [🚫 Standar Git & File yang Diabaikan (.gitignore)](#-standar-git--file-yang-diabaikan-gitignore)
 
@@ -28,35 +24,36 @@ Proyek ini menerapkan arsitektur modular **Page Object Pattern (Locators, Test D
 ```
 Appium_Mobile_Automation_BelajarBareng/
 ├── app/
-│   └── app-release.apk            # File APK aplikasi BelajarBareng
+│   └── app-release.apk              # File APK aplikasi BelajarBareng
 ├── dumps/
-│   ├── login_dump.xml             # Hierarki UI (XML Dump) layar Login
-│   └── home_dump.xml              # Hierarki UI (XML Dump) layar Beranda / Postingan
+│   ├── login_dump.xml               # Hierarki UI (XML Dump) layar Login
+│   └── home_dump.xml                # Hierarki UI (XML Dump) layar Beranda / Postingan
+├── scripts/
+│   └── prepare_allure.js            # Generator environment.properties & sync history trend
 ├── test/
-│   ├── data/                      # 📁 Data Pengujian (Test Data)
-│   │   ├── auth.data.js           # Dataset Positif (Manual & Dinamis) & Negatif (Invalid)
-│   │   └── post.data.js           # Data konten teks postingan
-│   ├── locators/                  # 📁 Selector Elemen (Locators)
-│   │   ├── login.locator.js       # Selector elemen form login
-│   │   ├── register.locator.js    # Selector elemen form registrasi
-│   │   └── home.locator.js        # Selector elemen beranda & form posting
-│   ├── utils/                     # 📁 Helper & Utilitas
-│   │   ├── generator.util.js      # Generator akun unik 100% huruf (tanpa angka)
-│   │   └── scroll.util.js         # Gestur scroll W3C Actions
-│   └── specs/                     # 📁 Skenario Pengujian (Specs)
-│       ├── full_test_sequence.spec.js # 🌟 Master Suite: Manual -> Regis -> Positif -> Negatif
-│       ├── positive/              # 🟢 Folder Positive Test Cases
-│       │   ├── register_positive.spec.js  # Registrasi dengan data valid
-│       │   ├── login_positive.spec.js     # Login Manual (aulia1@gmail.com) & Dinamis
-│       │   └── post_positive.spec.js      # Buat postingan & verifikasi feed
-│       ├── negative/              # 🔴 Folder Negative Test Cases
-│       │   ├── register_negative.spec.js  # Registrasi email invalid & field kosong
-│       │   └── login_negative.spec.js     # Login password salah, unreg email, & field kosong
-│       └── e2e_register_login_post.spec.js # Skenario E2E (Registrasi -> Login -> Posting)
-├── .gitignore                     # Konfigurasi file yang dikecualikan dari Git
-├── package.json                   # Dependencies & npm scripts
-├── README.md                      # Dokumentasi lengkap proyek
-└── wdio.conf.js                   # Konfigurasi WebdriverIO & Allure Reporter
+│   ├── data/                        # 📁 Data Pengujian (Test Data)
+│   │   ├── auth.data.js             # Dataset Positif (Manual & Dinamis) & Negatif
+│   │   └── post.data.js             # Data konten teks postingan
+│   ├── locators/                    # 📁 Selector Elemen (Locators)
+│   │   ├── login.locator.js         # Selector elemen form login
+│   │   ├── register.locator.js      # Selector elemen form registrasi
+│   │   └── home.locator.js          # Selector elemen beranda & form posting
+│   ├── utils/                       # 📁 Helper & Utilitas
+│   │   ├── app.util.js              # State reset aplikasi (mobile: clearApp)
+│   │   ├── generator.util.js        # Generator username 100% huruf (tanpa angka)
+│   │   └── scroll.util.js           # Gestur scroll W3C Actions
+│   └── specs/                       # 📁 Skenario Pengujian Modular
+│       ├── auth/
+│       │   ├── register.spec.js     # Registrasi: Valid dynamic user & Negative cases
+│       │   └── login.spec.js        # Login: Manual user, Dynamic user, & Negative cases
+│       ├── post/
+│       │   └── post.spec.js         # Posting: Create new post & verify on feed
+│       └── e2e/
+│           └── e2e_flow.spec.js     # Master E2E Flow: Register -> Login -> Post -> Feed
+├── .gitignore                       # Konfigurasi file yang dikecualikan dari Git
+├── package.json                     # Dependencies & npm scripts
+├── README.md                        # Dokumentasi lengkap proyek
+└── wdio.conf.js                     # Konfigurasi WebdriverIO & Allure Reporter
 ```
 
 ---
@@ -67,7 +64,7 @@ Appium_Mobile_Automation_BelajarBareng/
 2. **Java Development Kit (JDK)**: Versi 11 atau 17.
 3. **Android SDK**: `ANDROID_HOME` dan `adb` telah terdaftar di Environment Variables.
 4. **Device Android / Emulator**:
-   - Fisik (USB Debugging / Wireless Debugging aktif) atau Emulator (Android Studio AVD).
+   - Fisik (USB Debugging aktif) atau Emulator (Android Studio AVD).
    - Cek koneksi device:
      ```bash
      adb devices
@@ -87,28 +84,22 @@ npm install
 
 ---
 
-## 🔄 Alur Urutan Pengujian (Sequential Flow)
+## 📊 Arsitektur Pengujian & Hierarki BDD Allure
 
-File pengujian urutan lengkap berada di: [`test/specs/full_test_sequence.spec.js`](file:///c:/Users/qcris/OneDrive/Documents/Digital%20Skola/Appium_Mobile_Automation_BelajarBareng/test/specs/full_test_sequence.spec.js).
+Pengujian telah distandarisasi menggunakan anotasi BDD resmi (`@wdio/allure-reporter`) sehingga terstruktur rapi pada tab **Behaviors** Allure Report:
 
-### 1. Tahap 1: Login Manual User Valid
-* Menggunakan data kredensial valid tetap:
-  - **Email**: `aulia1@gmail.com`
-  - **Password**: `@Aulia1`
-* **Alur**: Memasukkan email & password $\to$ Klik Login $\to$ **Assert**: Berhasil masuk ke beranda & scroll feed.
-
-### 2. Tahap 2: Registrasi dengan Auto-Generate (Tanpa Angka)
-* Menggunakan `generator.util.js` untuk membuat nama unik murni huruf (contoh: `melatibchdfabc`).
-* Data otomatis disimpan ke file sesi.
-* **Alur**: Masuk form register $\to$ isi username, email, password $\to$ scroll $\to$ submit $\to$ **Assert**: Kembali ke halaman login.
-
-### 3. Tahap 3: Skenario Positif (Login Akun Baru & Posting)
-* **Login Akun Baru**: Membaca user yang baru saja didaftarkan pada Tahap 2 $\to$ submit login $\to$ **Assert**: Masuk ke beranda.
-* **Buat Postingan**: Mengisi teks postingan $\to$ klik Posting $\to$ scroll down $\to$ **Assert**: Postingan berhasil tampil di feed.
-
-### 4. Tahap 4: Skenario Negatif (Validasi Error & Field Kosong)
-* **Negatif Login**: Uji coba login menggunakan **Password Salah** $\to$ **Assert**: Sistem menolak login dan tetap berada di halaman login.
-* **Negatif Registrasi**: Uji coba registrasi dengan **Format Email Tidak Valid** $\to$ **Assert**: Sistem menahan pengguna tetap di layar registrasi.
+| Epic | Feature | Story | Tipe Kasus |
+| :--- | :--- | :--- | :--- |
+| **Authentication** | `Registration` | `Valid User Registration` | Positif (Auto-Generated 100% huruf) |
+| **Authentication** | `Registration` | `Invalid Email Registration` | Negatif (Email tanpa domain) |
+| **Authentication** | `Registration` | `Empty Fields Registration` | Negatif (Field kosong) |
+| **Authentication** | `Login` | `Manual Valid User Login` | Positif (`aulia1@gmail.com`) |
+| **Authentication** | `Login` | `Dynamic User Login` | Positif (Akun hasil registrasi) |
+| **Authentication** | `Login` | `Wrong Password Login` | Negatif (Password salah) |
+| **Authentication** | `Login` | `Unregistered Email Login` | Negatif (Email tidak terdaftar) |
+| **Authentication** | `Login` | `Empty Fields Login` | Negatif (Field kosong) |
+| **Post Management** | `Feed & Posting` | `Create Post` | Positif (Buat postingan & cek feed) |
+| **End-to-End Workflow** | `Complete User Journey` | `Register to Post Flow` | E2E (Register $\to$ Login $\to$ Posting) |
 
 ---
 
@@ -116,26 +107,30 @@ File pengujian urutan lengkap berada di: [`test/specs/full_test_sequence.spec.js
 
 | Perintah | Deskripsi |
 | :--- | :--- |
-| `npm run test:sequence` | **🌟 MENJALANKAN URUTAN LENGKAP: Manual Login ➡️ Regis Generate ➡️ Positif Flow ➡️ Negatif Flow** |
-| `npm run test:positive` | 🟢 Menjalankan Semua Skenario Positif (Register, Login Manual, Posting) |
-| `npm run test:negative` | 🔴 Menjalankan Semua Skenario Negatif (Login & Register Invalid) |
-| `npm run test:login:manual` | Menjalankan khusus **Login Manual** (`aulia1@gmail.com`) |
-| `npm run test:e2e` | Menjalankan skenario E2E (*Registrasi $\to$ Login $\to$ Posting*) |
-| `npm run report` | Menghasilkan & membuka visual **Allure Report** di browser |
+| `npm run test:all` | **Menjalankan Seluruh Suite Pengujian (Auth, Post, E2E)** |
+| `npm run test:e2e` | Menjalankan Skenario E2E Lengkap (*Register $\to$ Login $\to$ Post*) |
+| `npm run test:auth` | Menjalankan seluruh modul Autentikasi (Register & Login) |
+| `npm run test:login` | Menjalankan pengujian Login (Manual, Dinamis, & Negatif) |
+| `npm run test:register` | Menjalankan pengujian Registrasi (Dinamis & Negatif) |
+| `npm run test:post` | Menjalankan pengujian Buat Postingan & Verifikasi Feed |
+| `npm run report` | **Menghasilkan data environment, sinkronisasi history, dan membuka Allure Report** |
 
 ---
 
-## 📊 Menghasilkan & Membuka Allure Report
+## 📈 Menghasilkan & Membuka Allure Report
+
+Proyek ini telah dilengkapi script otomatis `scripts/prepare_allure.js` yang secara otomatis:
+1. Menghasilkan metadata sistem dan perangkat pada file `allure-results/environment.properties` (menghidupkan widget **Environment**).
+2. Menyalin folder `allure-report/history` ke `allure-results/history` sebelum proses generate (menghidupkan grafik **Trend History**).
+3. Menyertakan metadata runner pada `allure-results/executor.json` (menghidupkan widget **Executors**).
 
 ```bash
-# 1. Generate dan Buka Laporan Visual Sekaligus:
+# Generate dan buka Allure Report secara instan:
 npm run report
 
-# 2. Buka Laporan yang Sudah Ada:
+# Atau buka Allure Report yang sudah pernah digenerate:
 npm run allure:open
 ```
-
-Dashboard Allure Report akan menampilkan statistik lengkap pengujian berurutan, log langkah per langkah, durasi, dan status kelulusan.
 
 ---
 
@@ -161,9 +156,9 @@ Dashboard Allure Report akan menampilkan statistik lengkap pengujian berurutan, 
 
 ## 🚫 Standar Git & File yang Diabaikan (`.gitignore`)
 
-* `node_modules/`: Dependensi library.
-* `allure-results/` & `allure-report/`: Laporan pengujian dinamis lokal.
-* `test/data/session_user.json`: File data runtime sesi sementara.
-* `*.xml` *(kecuali `dumps/*.xml`)*: File XML dump sementara saat debugging.
-* `*.log`: Log debug npm/yarn.
-* `.DS_Store`, `Thumbs.db`, `.vscode/`, `.idea/`: File bawaan OS dan editor.
+* `node_modules/`: Dependensi library npm.
+* `allure-results/` & `allure-report/`: Artefak laporan pengujian Allure.
+* `test/data/session_user.json`: Data sesi runtime sementara.
+* `*.xml` *(kecuali `dumps/*.xml`)*: File XML dump debug.
+* `*.log`: Log debug npm/system.
+* `.DS_Store`, `Thumbs.db`, `.vscode/`, `.idea/`: File bawaan sistem operasi dan editor.
